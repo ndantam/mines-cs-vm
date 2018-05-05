@@ -1,0 +1,6 @@
+grub2
+linux-image-generic
+sudo
+build-essential
+emacs24
+sbcl

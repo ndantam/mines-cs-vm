@@ -1,0 +1,32 @@
+Virtual machine management for cs.mines.edu.
+
+Hypervisors
+===========
+
+VirtualBox
+----------
+
+Free, open-source, and cross-platform virtualization application.
+
+* [Website](https://www.virtualbox.org/)
+* [Manual](https://www.virtualbox.org/manual/)
+
+
+VMWare Workstation
+------------------
+
+Commercial virtualization application that is available in some Mines
+computer labs.  VMWare WOrkstation player is also free-of-charge for
+noncommercial use.
+
+* [VMWare Player](https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html)
+
+
+Kernel-based Virtual Machine
+----------------------------
+
+A hypervisor built into the Linux kernel.
+
+To run a disk image:
+
+    qemu-system-x86_64 --enable-kvm -m 1024 -hda mines-cs-vm.vmdk
