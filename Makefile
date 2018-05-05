@@ -19,6 +19,8 @@ DEB_TARBALL=$(DEB_DIST).tgz
 
 VMHOSTNAME=minesvm
 
+VBOXVM=minesvm
+
 .PHONY: mount umount sblock dblock partion debootstrap guestsetup
 
 nop:
@@ -60,6 +62,26 @@ mount:
 
 umount:
 	umount -R $(IMAGE_MOUNT)
+
+mkvm:
+	vboxmanage createvm --name $(VBOXVM) --ostype Ubuntu --register
+	vboxmanage modifyvm $(VBOXVM) --memory 1024
+	vboxmanage storagectl $(VBOXVM) --name "SATA Controller" --add sata --controller IntelAhci
+	vboxmanage storageattach $(VBOXVM) --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $(NAME)
+
+$(VBOXVM).ova:
+	vboxmanage export $(VBOXVM) -o $@ --ovf10 \
+		--vsys 0 \
+		--product "Mines CS VM" \
+		--description "Virtual Machine for CS Courses" \
+		--version "alpha" \
+
+
+rmvm:
+	vboxmanage unregistervm minesvm --delete
+
+vminfo:
+	vboxmanage showvminfo $(VBOXVM)
 
 ## OS INSTALL ##
 $(DEB_TARBALL):
