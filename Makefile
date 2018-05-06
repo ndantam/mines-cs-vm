@@ -87,6 +87,8 @@ vminfo:
 $(DEB_TARBALL):
 	debootstrap --make-tarball $@ \
 		--arch=amd64 \
+		--components=main,universe,multiverse \
+		--include=$(shell cat guest/packages | tr '\n' ',') \
 		$(DEB_DIST) $(DEB_DIST_DIR) $(DEB_URL)
 
 debootstrap: $(DEB_TARBALL)
