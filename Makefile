@@ -12,19 +12,55 @@ PARTITION_START=2048
 PARTITION=$(NBD)p1
 IMAGE_MOUNT=imgfs
 
+DEB_BASE=ubuntu
 DEB_DIST=xenial
 DEB_DIST_DIR=$(DEB_DIST)
 DEB_URL=http://archive.ubuntu.com/ubuntu/
 DEB_TARBALL=$(DEB_DIST).tgz
 
-VMHOSTNAME=minesvm
 
+VMHOSTNAME=minesvm
 VBOXVM=minesvm
 
-.PHONY: mount umount sblock dblock partion debootstrap guestsetup
+DOCKER_TAG_REPO=mines-cs-vm
+DOCKER_TAG_SEMESTER=F2018
+DOCKER_TAG_VERSION=a0
+
+
+
+
+DOCKER_TAG=$(DOCKER_TAG_REPO):$(DOCKER_TAG_SEMESTER)-$(DOCKER_TAG_VERSION)
+
+DEB_NAME=$(DEB_BASE)-$(DEB_DIST)
+
+DOCKER_FILE=script/$(DEB_NAME)
+
+
+.PHONY: mount umount sblock dblock partion debootstrap guestsetup docker-build
 
 nop:
 	@echo "Are you sure?"
+
+
+## DOCKER STUFF
+
+# docker-build: $(DOCKER_FILE)
+# 	docker build -t $(DOCKER_TAG) - < $<
+#
+# docker-shell:
+# 	docker run -i -t --entrypoint /bin/bash $(DOCKER_TAG)
+#
+# container: $(DOCKER_FILE)
+# 	docker build -t $(DOCKER_TAG) - < $<
+# 	docker create $(DOCKER_TAG) > $@
+
+$(DEB_NAME).tar.gz: $(DOCKER_FILE)
+	docker build -t $(DOCKER_TAG) - < $<
+	docker run --rm $(DOCKER_TAG) tar czf - . \
+		--exclude='proc/*' \
+		--exclude='sys/*' \
+		--exclude='dev/*' \
+		> $@
 
 ## DISK IMAGE and FILESYSTEM ##
 $(NAME):

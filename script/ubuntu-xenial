@@ -1,0 +1,38 @@
+FROM ubuntu:xenial
+
+
+# build-essential
+RUN apt-get -y update && apt-get install -y  \
+  build-essential
+
+# build scripts
+RUN apt-get install -y \
+  cmake \
+  autoconf \
+  automake \
+  libtool \
+  autoconf-archive \
+  autotools-dev
+
+# RUN apt-get -y update && \
+#     apt-get install -y  \
+#             build-essential \
+#             autoconf \
+#             automake \
+#             libtool \
+#             autoconf-archive \
+#             autotools-dev \
+#             gfortran \
+#             f2c \
+#             linux-image-generic  \
+#             sudo \
+#             build-essential \
+#             emacs24 \
+#             sbcl
+
+
+
+
+# Local Variables:
+# mode: dockerfile
+# End:

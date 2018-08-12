@@ -2,3 +2,4 @@
 /*.tgz
 /*.ova
 debootstrap
+/ubuntu-xenial.tar.gz
