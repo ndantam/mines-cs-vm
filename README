@@ -44,3 +44,15 @@ A hypervisor built into the Linux kernel.
 To run a disk image:
 
     qemu-system-x86_64 --enable-kvm -m 1024 -hda mines-cs-vm.vmdk
+
+
+Rebuilding the VM
+=================
+
+1. Install/Setup docker
+
+2. Load the NBD Module: `sudo modprobe nbd max_part=8`
+
+   WARNING: ensure that nothing else is using `/dev/nbd0` or the build will clobber it
+
+3. Make the vm: `make minesvm.ova`
