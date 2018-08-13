@@ -5,3 +5,4 @@ debootstrap
 /ubuntu-xenial.tar.gz
 *.stamp
 /ubuntu-xenial.tar.zstd
+imgfs
