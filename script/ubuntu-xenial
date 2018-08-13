@@ -1,18 +1,37 @@
 FROM ubuntu:xenial
 
+RUN apt-get -y update
 
-# build-essential
+# basic setup
 RUN apt-get -y update && apt-get install -y  \
-  build-essential
+    sudo \
+    locales  \
+    && \
+    locale-gen en_US.UTF-8
 
-# build scripts
-RUN apt-get install -y \
-  cmake \
-  autoconf \
-  automake \
-  libtool \
-  autoconf-archive \
-  autotools-dev
+
+# Add user
+RUN adduser blaster \
+      --gecos GECOS \
+      --disabled-password  \
+    && \
+    adduser blaster sudo \
+    && \
+    echo blaster:password | chpasswd
+
+
+# # build-essential
+# RUN apt-get -y update && apt-get install -y  \
+#   build-essential
+
+# # build scripts
+# RUN apt-get install -y \
+#   cmake \
+#   autoconf \
+#   automake \
+#   libtool \
+#   autoconf-archive \
+#   autotools-dev
 
 # RUN apt-get -y update && \
 #     apt-get install -y  \

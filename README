@@ -1,5 +1,19 @@
 Virtual machine management for cs.mines.edu.
 
+Usage
+=====
+
+1. Install a hypervisor (see options below)
+
+2. Download the VM image
+
+3. Import the VM
+
+4. Default Account:
+   Username: blaster
+   Password: password
+
+
 Hypervisors
 ===========
 
