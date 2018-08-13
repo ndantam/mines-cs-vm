@@ -1,5 +1,7 @@
 FROM ubuntu:xenial
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get -y update
 
 # basic setup
@@ -9,15 +11,35 @@ RUN apt-get -y update && apt-get install -y  \
     && \
     locale-gen en_US.UTF-8
 
+# Desktop
+RUN apt-get install -y \
+    gdm3 \
+    xubuntu-desktop
+
+# Editors
+RUN apt-get install -y \
+    vim-gtk3 \
+    emacs24-lucid
+
+# Linux
+RUN apt-get install -y \
+    linux-headers-generic
+
+# virtualbox
+RUN apt-get install -y \
+    virtualbox-guest-utils \
+    virtualbox-guest-x11 \
+    virtualbox-guest-dkms
 
 # Add user
 RUN adduser blaster \
-      --gecos GECOS \
+      --gecos Blaster \
       --disabled-password  \
     && \
     adduser blaster sudo \
     && \
     echo blaster:password | chpasswd
+
 
 
 # # build-essential

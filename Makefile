@@ -106,6 +106,10 @@ vmfinish:
 	cp script/guest.sh $(IMAGE_MOUNT)
 	chroot $(IMAGE_MOUNT) /guest.sh
 	chroot $(IMAGE_MOUNT) grub-install --target=i386-pc $(NBD)
+	sudo sed -i \
+		-e 's/^GRUB_HIDDEN_TIMEOUT=/#GRUB_HIDDEN_TIMEOUT=/' \
+		-e 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT=""/' \
+		$(IMAGE_MOUNT)/etc/default/grub
 	chroot $(IMAGE_MOUNT) update-grub2
 
 umount:
