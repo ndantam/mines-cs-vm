@@ -1,7 +1,7 @@
 
 
 ## CONFIGURATION ##
-NAME=mines-cs-vm.vmdk
+NAME=img/mines-cs-vm.vmdk
 FORMAT=VMDK
 NBD=/dev/nbd0
 
@@ -36,7 +36,7 @@ DEB_NAME=$(DEB_BASE)-$(DEB_DIST)
 DOCKER_FILE=script/$(DEB_NAME)
 
 
-.PHONY: mount umount sblock dblock partion debootstrap guestsetup docker-build
+.PHONY: mount umount sblock dblock partion debootstrap guestsetup docker-shell
 
 nop:
 	@echo "Are you sure?"
@@ -47,6 +47,12 @@ nop:
 docker-image.stamp: $(DOCKER_FILE)
 	docker build -t $(DOCKER_TAG) - < $<
 	touch $@
+
+docker-container.stamp: docker-image.stamp
+	docker create $(DOCKER_TAG) > $@
+
+docker-shell:
+	docker run -i --rm -t --entrypoint /bin/bash  $(DOCKER_TAG)
 
 # $(DEB_NAME).tar.zstd: docker-image.stamp
 # 	docker run --rm $(DOCKER_TAG) tar cf - . \
@@ -103,8 +109,8 @@ bindmount:
 
 vmfinish:
 	cp guest/fstab guest/hosts $(IMAGE_MOUNT)/etc/
-	cp script/guest.sh $(IMAGE_MOUNT)
-	chroot $(IMAGE_MOUNT) /guest.sh
+	cp script/guest.sh guest/debconf-selections $(IMAGE_MOUNT)/tmp
+	chroot $(IMAGE_MOUNT) /tmp/guest.sh
 	chroot $(IMAGE_MOUNT) grub-install --target=i386-pc $(NBD)
 	sudo sed -i \
 		-e 's/^GRUB_HIDDEN_TIMEOUT=/#GRUB_HIDDEN_TIMEOUT=/' \
@@ -116,6 +122,9 @@ umount:
 	umount -R $(IMAGE_MOUNT)
 	qemu-nbd -d $(NBD)
 
+$(NAME).bz2: $(NAME)
+	lbzip2 -k $<
+
 vm.stamp: mines-cs-vm.vmdk
 	vboxmanage createvm --name $(VBOXVM) --ostype Ubuntu_64 --register
 	vboxmanage modifyvm $(VBOXVM) --memory 1024
@@ -123,8 +132,7 @@ vm.stamp: mines-cs-vm.vmdk
 	vboxmanage storageattach $(VBOXVM) --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $(NAME)
 	touch vm.stamp
 
-
-$(VBOXVM).ova: vm.stamp
+img/$(VBOXVM).ova: vm.stamp
 	rm -f $@
 	vboxmanage export $(VBOXVM) -o $@ --ovf10 \
 		--vsys 0 \

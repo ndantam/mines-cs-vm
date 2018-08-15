@@ -4,6 +4,8 @@ if [ -n "$TMP" ]; then
     mkdir -p "$TMP"
 fi
 
+debconf-set-selections /tmp/debconf-selections
+dpkg-reconfigure -fnoninteractive gdm3
 
 echo minesvm > /etc/hostname
 
