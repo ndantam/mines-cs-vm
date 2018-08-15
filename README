@@ -1,17 +1,34 @@
 Virtual machine management for cs.mines.edu.
 
-Usage
-=====
+Using the Virtual Machine
+=========================
 
 1. Install a hypervisor (see options below)
 
-2. Download the VM image
+2. Download the virtual disk.  (You need to replace USER below with
+   your Mines username)
 
-3. Import the VM
+   From ON campus, copy via scp:
 
-4. Default Account:
-   Username: blaster
-   Password: password
+       scp 'isengard.mines.edu:~ndantam/mines-cs-vm.vmdk.bz2' .
+
+   From OFF campus, copy via scp through jumpbox:
+
+       scp -o ProxyJump=USER@jumpbox.mines.edu 'USER@isengard:~ndantam/mines-cs-vm.vmdk.bz2' .
+
+3. Decompress the disk image:
+
+       bunzip2 mines-cs-vm.vmdk.bz2
+
+4. Start your hypervisor and import the virtual disk.
+
+5. Login with the default account:
+
+       Username: blaster
+       Password: password
+
+   Note: You may need to change the session type in the display
+   manager to System Default.
 
 
 Hypervisors
@@ -49,10 +66,38 @@ To run a disk image:
 Rebuilding the VM
 =================
 
-1. Install/Setup docker
+The virtual machine is constructed by first building a Docker image
+and then extracting the filesystem from that image onto a separate
+virtual disk.  Part of the build process chroots into the virtual disk
+filesystem, so the build will only work on Linux.
 
-2. Load the NBD Module: `sudo modprobe nbd max_part=8`
+Instructions
+------------
+
+1. Install/Setup [docker] (https://www.docker.com/)
+
+2. Install virtualbox, qemu-utils, and parted (used for disk image
+   setup):
+
+       apt-get install virtualbox qemu-utils parted
+
+3. Load the NBD Module:
+
+       sudo modprobe nbd max_part=8
 
    WARNING: ensure that nothing else is using `/dev/nbd0` or the build will clobber it
 
-3. Make the vm: `make minesvm.ova`
+4. Create the docker image:
+
+       sudo make docker-image.stamp
+
+5. Create the virtual disk:
+
+       sudo make img/mines-cs-vm.vmdk
+
+Quirks
+------
+
+* lightdm does not work correctly.  Use gdm3 instead:
+
+       dpkg-reconfigure gdm3
