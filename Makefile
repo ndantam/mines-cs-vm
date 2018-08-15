@@ -26,7 +26,8 @@ DOCKER_TAG_REPO=mines-cs-vm
 DOCKER_TAG_SEMESTER=F2018
 DOCKER_TAG_VERSION=a0
 
-
+UPLOAD_HOST=isengard-jump
+UPLOAD_PATH=.
 
 
 DOCKER_TAG=$(DOCKER_TAG_REPO):$(DOCKER_TAG_SEMESTER)-$(DOCKER_TAG_VERSION)
@@ -80,17 +81,34 @@ partition.vmdk: base.vmdk
 	qemu-nbd -d $(NBD)
 
 
-$(NAME): partition.vmdk docker-image.stamp
+$(NAME): partition.vmdk docker-image.stamp script/guest.sh
 	cp partition.vmdk $@
 	$(MAKE) mount
-	docker run --rm $(DOCKER_TAG) tar cf - . \
-		--exclude='proc/*' \
-		--exclude='sys/*' \
-		--exclude='dev/*' \
-		| (cd $(IMAGE_MOUNT) && tar xaf -)
+	$(MAKE) copy-export
 	$(MAKE) bindmount
 	$(MAKE) vmfinish
 	$(MAKE) umount
+
+refinish:
+	$(MAKE) mount
+	$(MAKE) bindmount
+	cp script/guest.sh $(IMAGE_MOUNT)/tmp
+	chroot $(IMAGE_MOUNT) /tmp/guest.sh
+	$(MAKE) umount
+
+imgshell:
+	$(MAKE) mount
+	$(MAKE) bindmount
+	chroot $(IMAGE_MOUNT)
+	$(MAKE) umount
+
+
+copy-export:
+	docker create $(DOCKER_TAG) > .cp.id
+	docker export `cat .cp.id` | \
+	  (cd $(IMAGE_MOUNT) && tar xaf -)
+	docker rm `cat .cp.id`
+
 
 mount:
 	qemu-nbd  -c $(NBD) $(NAME)
@@ -108,12 +126,13 @@ bindmount:
 	mount none -t devpts $(IMAGE_MOUNT)/dev/pts
 
 vmfinish:
-	cp guest/fstab guest/hosts $(IMAGE_MOUNT)/etc/
+	cp guest/fstab guest/hosts guest/resolv.conf $(IMAGE_MOUNT)/etc/
 	cp script/guest.sh guest/debconf-selections $(IMAGE_MOUNT)/tmp
 	chroot $(IMAGE_MOUNT) /tmp/guest.sh
 	chroot $(IMAGE_MOUNT) grub-install --target=i386-pc $(NBD)
 	sudo sed -i \
 		-e 's/^GRUB_HIDDEN_TIMEOUT=/#GRUB_HIDDEN_TIMEOUT=/' \
+		-e 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=3/' \
 		-e 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT=""/' \
 		$(IMAGE_MOUNT)/etc/default/grub
 	chroot $(IMAGE_MOUNT) update-grub2
@@ -125,20 +144,27 @@ umount:
 $(NAME).bz2: $(NAME)
 	lbzip2 -k $<
 
-vm.stamp: mines-cs-vm.vmdk
-	vboxmanage createvm --name $(VBOXVM) --ostype Ubuntu_64 --register
-	vboxmanage modifyvm $(VBOXVM) --memory 1024
-	vboxmanage storagectl $(VBOXVM) --name "SATA Controller" --add sata --controller IntelAhci
-	vboxmanage storageattach $(VBOXVM) --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $(NAME)
-	touch vm.stamp
 
-img/$(VBOXVM).ova: vm.stamp
-	rm -f $@
-	vboxmanage export $(VBOXVM) -o $@ --ovf10 \
-		--vsys 0 \
-		--product "Mines CS VM" \
-		--description "Virtual Machine for CS Courses" \
-		--version "alpha"
+upload: $(NAME)
+	lbzip2 -c -k $< | \
+		ssh $(UPLOAD_HOST) "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).bz2"
+
+
+
+# vm.stamp: mines-cs-vm.vmdk
+# 	vboxmanage createvm --name $(VBOXVM) --ostype Ubuntu_64 --register
+# 	vboxmanage modifyvm $(VBOXVM) --memory 1024
+# 	vboxmanage storagectl $(VBOXVM) --name "SATA Controller" --add sata --controller IntelAhci
+# 	vboxmanage storageattach $(VBOXVM) --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $(NAME)
+# 	touch vm.stamp
+
+# img/$(VBOXVM).ova: vm.stamp
+# 	rm -f $@
+# 	vboxmanage export $(VBOXVM) -o $@ --ovf10 \
+# 		--vsys 0 \
+# 		--product "Mines CS VM" \
+# 		--description "Virtual Machine for CS Courses" \
+# 		--version "alpha"
 
 
 # rmvm:
@@ -149,6 +175,22 @@ img/$(VBOXVM).ova: vm.stamp
 
 
 
+# copy-zfs:
+# 	docker create $(DOCKER_TAG) > .cp-zfs.id
+# 	cd /var/lib/docker/zfs/graph/$(shell cat .cp-zfs.id) && \
+# 		tar cf - . \
+# 			--exclude='proc/*' \
+# 			--exclude='sys/*' \
+# 			--exclude='dev/*' \
+# 	| (cd $(IMAGE_MOUNT) && tar xaf -)
+# 	docker rm $(shell cat .cp-zfs.id)
+
+# copy-docker:
+# 	docker run --rm $(DOCKER_TAG) tar cf - . \
+# 		--exclude='proc/*' \
+# 		--exclude='sys/*' \
+# 		--exclude='dev/*' \
+# 		| (cd $(IMAGE_MOUNT) && tar xaf -)
 
 
 ## OS INSTALL ##
@@ -174,7 +216,7 @@ img/$(VBOXVM).ova: vm.stamp
 # 	chroot $(IMAGE_MOUNT) locale-gen en_US.UTF-8
 # 	sudo sed -i -e 's/main$$/main universe multiverse/' \
 # 		$(IMAGE_MOUNT)/etc/apt/sources.list
-# 	sudo sed -i -e 's/^GRUB_HIDDEN_TIMEOUT=/#GRUB_HIDDEN_TIMEOUT=/' \
+
 # 		$(IMAGE_MOUNT)/etc/default/grub
 # 	chroot $(IMAGE_MOUNT) apt-get update
 # 	chroot $(IMAGE_MOUNT) mkdir -p $(TMPDIR)

@@ -1,4 +1,4 @@
-/*.vmdk
+*.vmdk
 /*.tgz
 /*.ova
 debootstrap
@@ -6,3 +6,4 @@ debootstrap
 *.stamp
 /ubuntu-xenial.tar.zstd
 imgfs
+/.cp.id
