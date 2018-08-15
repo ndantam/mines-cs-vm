@@ -144,10 +144,12 @@ umount:
 $(NAME).bz2: $(NAME)
 	lbzip2 -k $<
 
-
+.PHONY: upload
 upload: $(NAME)
-	lbzip2 -c -k $< | \
-		ssh $(UPLOAD_HOST) "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).bz2"
+	lbzip2 -vck $< | \
+		ssh -o compression=no \
+			$(UPLOAD_HOST) \
+			 "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).bz2"
 
 
 
