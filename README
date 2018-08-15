@@ -74,7 +74,7 @@ filesystem, so the build will only work on Linux.
 Instructions
 ------------
 
-1. Install/Setup [docker] (https://www.docker.com/)
+1. Install/Setup [docker](https://www.docker.com/)
 
 2. Install virtualbox, qemu-utils, and parted (used for disk image
    setup):
