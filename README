@@ -5,8 +5,9 @@ Using the Virtual Machine
 
 1. Install a hypervisor (see options below)
 
-2. Download the virtual disk.  (You need to replace USER below with
-   your Mines username)
+2. Download the virtual disk (You need to replace USER below with your
+   Mines username). On Microsoft Windows, you can obtain `scp` and
+   `bzip2` from [Cygwin](http://cygwin.com/).
 
    From ON campus, copy via scp:
 
