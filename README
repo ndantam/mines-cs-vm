@@ -11,7 +11,7 @@ Using the Virtual Machine
 
    From ON campus, copy via scp:
 
-       scp 'isengard.mines.edu:~ndantam/mines-cs-vm.vmdk.xz' .
+       scp 'USER@isengard.mines.edu:~ndantam/mines-cs-vm.vmdk.xz' .
 
    From OFF campus, copy via scp through jumpbox:
 
