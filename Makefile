@@ -144,13 +144,22 @@ umount:
 $(NAME).bz2: $(NAME)
 	lbzip2 -k $<
 
+
 .PHONY: upload
 upload: $(NAME)
-	lbzip2 -vck $< | \
+	xz -9 -T 0 -vck $< | \
 		ssh -o compression=no \
 			$(UPLOAD_HOST) \
-			 "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).bz2"
+			 "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).xz"
 
+
+
+# .PHONY: upload
+# upload: $(NAME)
+# 	lbzip2 -vck $< | \
+# 		ssh -o compression=no \
+# 			$(UPLOAD_HOST) \
+# 			 "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).bz2"
 
 
 # vm.stamp: mines-cs-vm.vmdk

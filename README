@@ -7,19 +7,19 @@ Using the Virtual Machine
 
 2. Download the virtual disk (You need to replace USER below with your
    Mines username). On Microsoft Windows, you can obtain `scp` and
-   `bzip2` from [Cygwin](http://cygwin.com/).
+   `xz` from [Cygwin](http://cygwin.com/).
 
    From ON campus, copy via scp:
 
-       scp 'isengard.mines.edu:~ndantam/mines-cs-vm.vmdk.bz2' .
+       scp 'isengard.mines.edu:~ndantam/mines-cs-vm.vmdk.xz' .
 
    From OFF campus, copy via scp through jumpbox:
 
-       scp -o ProxyJump=USER@jumpbox.mines.edu 'USER@isengard:~ndantam/mines-cs-vm.vmdk.bz2' .
+       scp -o ProxyJump=USER@jumpbox.mines.edu 'USER@isengard:~ndantam/mines-cs-vm.vmdk.xz' .
 
 3. Decompress the disk image:
 
-       bunzip2 mines-cs-vm.vmdk.bz2
+       unxz -v mines-cs-vm.vmdk.xz
 
 4. Start your hypervisor and import the virtual disk.
 

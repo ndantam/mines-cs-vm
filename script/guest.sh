@@ -14,3 +14,5 @@ apt-get -y upgrade
 echo minesvm > /etc/hostname
 
 apt-get install -y grub2 linux-image-generic linux-headers-generic
+
+apt-get clean
