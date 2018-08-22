@@ -6,8 +6,11 @@ Using the Virtual Machine
 1. Install a hypervisor (see options below)
 
 2. Download the virtual disk (You need to replace USER below with your
-   Mines username). On Microsoft Windows, you can obtain `scp` and
-   `xz` from [Cygwin](http://cygwin.com/).
+   Mines username).
+
+   On Microsoft Windows, you can obtain `scp` and `xz` from
+   [Cygwin](http://cygwin.com/) or another scp (`pscp`) from
+   [Putty](https://www.chiark.greenend.org.uk/~sgtatham/putty).
 
    From ON campus, copy via scp:
 
