@@ -49,6 +49,10 @@ docker-image.stamp: $(DOCKER_FILE)
 	docker build -t $(DOCKER_TAG) - < $<
 	touch $@
 
+lispgrader-image.stamp: docker-image.stamp script/lispgrader
+	docker build -t $(DOCKER_TAG_REPO):lispgrader - < script/lispgrader
+	touch $@
+
 docker-container.stamp: docker-image.stamp
 	docker create $(DOCKER_TAG) > $@
 
