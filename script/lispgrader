@@ -1,4 +1,4 @@
-FROM mines-cs-vm:F2018-a0
+FROM mines-cs-vm:F2020-a0
 
 USER blaster
 

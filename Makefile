@@ -2,7 +2,7 @@
 
 ## CONFIGURATION ##
 NAME=img/mines-cs-vm.vmdk
-FORMAT=VMDK
+FORMAT=vmdk
 NBD=/dev/nbd0
 
 SIZE=$(shell echo "15 * 2^30" | bc)
@@ -13,7 +13,7 @@ PARTITION=$(NBD)p1
 IMAGE_MOUNT=imgfs
 
 DEB_BASE=ubuntu
-DEB_DIST=xenial
+DEB_DIST=focal
 DEB_DIST_DIR=$(DEB_DIST)
 DEB_URL=http://archive.ubuntu.com/ubuntu/
 DEB_TARBALL=$(DEB_DIST).tgz
@@ -23,7 +23,7 @@ VMHOSTNAME=minesvm
 VBOXVM=minesvm
 
 DOCKER_TAG_REPO=mines-cs-vm
-DOCKER_TAG_SEMESTER=F2018
+DOCKER_TAG_SEMESTER=F2020
 DOCKER_TAG_VERSION=a0
 
 UPLOAD_HOST=isengard-jump
@@ -69,10 +69,15 @@ docker-shell:
 ## DISK IMAGE and FILESYSTEM ##
 
 base.vmdk:
-	vbox-img createbase \
-		--filename $@ \
-		--format "$(FORMAT)" \
-		--size "$(SIZE)"
+	qemu-img create \
+		-f $(FORMAT) \
+		$@ \
+		$(SIZE)
+
+	# vbox-img createbase \
+	# 	--filename $@ \
+	# 	--format "$(FORMAT)" \
+	# 	--size "$(SIZE)"
 
 
 partition.vmdk: base.vmdk
@@ -139,7 +144,7 @@ vmfinish:
 		-e 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=3/' \
 		-e 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT=""/' \
 		$(IMAGE_MOUNT)/etc/default/grub
-	chroot $(IMAGE_MOUNT) update-grub2
+	chroot $(IMAGE_MOUNT) update-grub
 
 umount:
 	umount -R $(IMAGE_MOUNT)
@@ -149,12 +154,12 @@ $(NAME).bz2: $(NAME)
 	lbzip2 -k $<
 
 
-.PHONY: upload
-upload: $(NAME)
-	xz -9 -T 0 -vck $< | \
-		ssh -o compression=no \
-			$(UPLOAD_HOST) \
-			 "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).xz"
+# .PHONY: upload
+# upload: $(NAME)
+# 	xz -9 -T 0 -vck $< | \
+# 		ssh -o compression=no \
+# 			$(UPLOAD_HOST) \
+# 			 "cat > $(UPLOAD_PATH)/$(notdir $(NAME)).xz"
 
 
 
