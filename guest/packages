@@ -1,6 +1,7 @@
 grub2
+grub-pc
 linux-image-generic
 sudo
 build-essential
-emacs24
+emacs
 sbcl

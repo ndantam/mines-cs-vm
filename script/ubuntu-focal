@@ -1,0 +1,60 @@
+FROM ubuntu:focal
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get -y update
+
+# basic setup
+RUN apt-get -y update && apt-get install -y  \
+    sudo \
+    locales  \
+    && \
+    locale-gen en_US.UTF-8
+
+# Desktop
+RUN apt-get install -y \
+    xubuntu-desktop
+
+# Add user
+RUN adduser blaster \
+      --gecos Blaster \
+      --disabled-password  \
+    && \
+    adduser blaster sudo \
+    && \
+    echo blaster:password | chpasswd
+
+# Editors, Linux, etc
+RUN apt-get install -y \
+  build-essential \
+  debconf-utils \
+  cmake \
+  autoconf \
+  automake \
+  libtool \
+  autoconf-archive \
+  autotools-dev \
+  emacs \
+  linux-headers-generic
+
+# virtualbox
+RUN apt-get install -y \
+  virtualbox-guest-utils \
+  virtualbox-guest-x11 \
+  virtualbox-guest-dkms
+
+
+# NTD packages
+RUN apt-get install -y  \
+  sbcl
+
+# Kernel stuff
+RUN apt-get install -y --download-only \
+  grub2 \
+  grub-pc \
+  linux-image-generic \
+  linux-headers-generic
+
+# Local Variables:
+# mode: dockerfile
+# End:
